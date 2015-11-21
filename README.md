@@ -17,10 +17,11 @@ to transform streams before it is passed to the underlying socket.
 
 See [./test/index.js](./test/index.js).
 
-Example:
+Example for compressing response:
 
 ```javascript
 import express from 'express';
+import onHeaders from 'on-headers';
 import transform from 'express-transform';
 
 const app = express();
@@ -28,7 +29,15 @@ app.use(transform);
 app.use((req, res, next) => {
   const gzip = zlib.createGzip();
   res.transform(gzip);
-  res.setHeader('Content-Encoding', 'gzip');
+
+  // Some express methods automatically
+  // add Content-Length header which will
+  // be incorrect since we are compressing.
+  onHeaders(res, function gzipOnHeaders() {
+    this.setHeader('Content-Encoding', 'gzip');
+    this.removeHeader('Content-Length');
+  });
+
   next();
 });
 

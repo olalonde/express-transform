@@ -4,6 +4,7 @@ import express from 'express';
 import fetch from 'node-fetch';
 import transform from '../src';
 import zlib from 'zlib';
+import onHeaders from 'on-headers';
 
 let httpServer;
 
@@ -13,14 +14,19 @@ const setup = () => {
   app.use((req, res, next) => {
     const gzip = zlib.createGzip();
     res.transform(gzip);
-    res.setHeader('Content-Encoding', 'gzip');
+    onHeaders(res, function gzipOnHeaders() {
+      this.setHeader('Content-Encoding', 'gzip');
+      this.removeHeader('Content-Length');
+    });
     next();
   });
 
-  app.use((req, res) => {
-    // TODO: doesnt work with res.send because it sets
-    // (incorrect) content-length
+  app.use('/hello', (req, res) => {
     res.end('Hello World!');
+  });
+
+  app.use('/json', (req, res) => {
+    res.json({ hello: 'world!' });
   });
 
   httpServer = http.createServer(app).listen();
@@ -31,20 +37,36 @@ const setup = () => {
 
 const tearDown = () => {
   httpServer.close();
+  return Promise.resolve();
 };
 
-test('bandwidth', (t) => {
-  return setup()
-    .then(({ url }) => {
-      t.comment(url);
-      return fetch(`${url}`)
-      .then((res) => {
-        return res.text();
-      })
-      .then((body) => {
-        t.equal(body, 'Hello World!');
-      });
+let url;
+test('start server', (t) => {
+  return setup().then((r) => {
+    t.comment(r.url);
+    url = r.url;
+  });
+});
+
+test('res.end', (t) => {
+  return fetch(`${url}/hello`)
+    .then((res) => res.text())
+    .then((body) => {
+      t.equal(body, 'Hello World!');
+    });
+});
+
+test('res.json', (t) => {
+  return fetch(`${url}/json`)
+    .then((res) => {
+      return res.json();
     })
-    .then(tearDown);
+    .then((body) => {
+      t.deepEqual(body, { hello: 'world!' });
+    });
+});
+
+test('stop server', () => {
+  return tearDown();
 });
 
