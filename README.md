@@ -2,6 +2,8 @@ WIP
 
 # express-transform
 
+[![Build Status](https://travis-ci.org/olalonde/express-transform.svg)](https://travis-ci.org/olalonde/express-transform)
+
 ## Install
 
 ```
