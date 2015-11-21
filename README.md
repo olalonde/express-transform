@@ -42,8 +42,6 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res) => {
-  // TODO: doesnt work with res.send because it sets
-  // (incorrect) content-length
-  res.end('Hello World!');
+  res.send('Hello World!');
 });
 ```
