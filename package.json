@@ -38,7 +38,7 @@
     "rimraf": "^2.4.3",
     "stream-to-promise": "^1.0.4"
   },
-  "version": "0.0.1",
+  "version": "1.0.0",
   "config": {
     "commitizen": {
       "path": "node_modules/cz-conventional-changelog/"
