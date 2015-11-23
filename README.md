@@ -25,7 +25,7 @@ import onHeaders from 'on-headers';
 import transform from 'express-transform';
 
 const app = express();
-app.use(transform);
+app.use(transform());
 app.use((req, res, next) => {
   const gzip = zlib.createGzip();
   res.transform(gzip);

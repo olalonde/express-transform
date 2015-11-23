@@ -59,7 +59,9 @@ const patch = (res) => {
 };
 
 
-export default (req, res, next) => {
-  patch(res);
-  next();
+export default () => {
+  return (req, res, next) => {
+    patch(res);
+    next();
+  };
 };

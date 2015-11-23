@@ -10,7 +10,7 @@ let httpServer;
 
 const setup = () => {
   const app = express();
-  app.use(transform);
+  app.use(transform());
   app.use((req, res, next) => {
     const gzip = zlib.createGzip();
     res.transform(gzip);
