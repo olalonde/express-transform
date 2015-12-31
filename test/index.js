@@ -2,7 +2,7 @@
 import test from 'blue-tape';
 import http from 'http';
 import express from 'express';
-import fetch from 'node-fetch';
+import _fetch from 'node-fetch';
 import transform from '../src';
 import zlib from 'zlib';
 import onHeaders from 'on-headers';
@@ -68,6 +68,11 @@ const tearDown = () => {
   return Promise.resolve();
 };
 
+// add a default timeout of 1s
+const fetch = (url, options = {}) => {
+  return _fetch(url, Object.assign({}, { timeout: 1000 }, options));
+};
+
 let url;
 test('start server', (t) => {
   return setup().then((r) => {
@@ -77,7 +82,7 @@ test('start server', (t) => {
 });
 
 test('/hello?gzip', (t) => {
-  return fetch(`${url}/hello`)
+  return fetch(`${url}/hello?gzip`)
     .then((res) => res.text())
     .then((body) => {
       t.equal(body, 'Hello World!');
@@ -85,7 +90,7 @@ test('/hello?gzip', (t) => {
 });
 
 test('res.json?gzip', (t) => {
-  return fetch(`${url}/json`)
+  return fetch(`${url}/json?gzip`)
     .then((res) => {
       return res.json();
     })
@@ -147,4 +152,3 @@ test('fsblobstore', (t) => {
 test('stop server', () => {
   return tearDown();
 });
-
